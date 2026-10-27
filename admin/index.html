@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>VINOA · Admin</title>
+<link rel="icon" href="../vinoa-v-96.png">
+<link rel="apple-touch-icon" href="../vinoa-v-96.png">
+<style>
+@font-face{font-family:"Geist";src:url(../geist.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Geist Mono";src:url(../geist-mono.woff2) format("woff2");font-weight:100 900;font-display:swap}
+:root{--bg:#000;--card:#0c0c0e;--card2:#141417;--fg:#fff;--dim:rgba(255,255,255,.6);--mute:rgba(255,255,255,.38);--line:rgba(255,255,255,.1);--accent:#8FB8FF;
+--ok:#7EE2A8;--wait:#FFD27A;--bad:#FF8A8A;--ease:cubic-bezier(.23,1,.32,1);--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:"Geist",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100dvh}
+button,input{font:inherit;color:inherit}
+.mono{font-family:"Geist Mono",ui-monospace,monospace;direction:ltr;unicode-bidi:isolate}
+/* lock */
+#lock{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
+.lockbox{width:100%;max-width:360px;text-align:center}
+.lockbox img{width:56px;height:56px;opacity:.95;margin-bottom:18px}
+.lockbox h1{font-size:15px;letter-spacing:.32em;font-weight:500;margin:0 0 6px}
+.lockbox p{color:var(--mute);font-size:13px;margin:0 0 28px}
+.field{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:15px 16px;font-size:16px;outline:none;transition:border-color .2s}
+.field:focus{border-color:rgba(143,184,255,.6)}
+.btn{width:100%;margin-top:12px;background:#fff;color:#000;border:0;border-radius:14px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;transition:transform .15s var(--ease),opacity .2s}
+.btn:active{transform:scale(.98)}
+.remember{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:16px;color:var(--dim);font-size:13px}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin-top:12px}
+/* app */
+#app{display:none;padding:calc(var(--safe-t) + 14px) 16px calc(var(--safe-b) + 40px);max-width:760px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{width:28px;height:28px}
+.brand b{font-size:13px;letter-spacing:.3em;font-weight:500}
+.brand span{font-size:12px;color:var(--mute)}
+.ghost{background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:12px;color:var(--dim);cursor:pointer}
+.tracks{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 16px;padding:0 16px}
+.tracks::-webkit-scrollbar{display:none}
+.track{flex:none;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:10px 16px;cursor:pointer;text-align:right}
+.track.on{background:#fff;color:#000;border-color:#fff}
+.track small{display:block;font-size:11px;opacity:.6;margin-top:2px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 12px;cursor:pointer;transition:border-color .2s,transform .15s var(--ease)}
+.stat:active{transform:scale(.97)}
+.stat.on{border-color:rgba(255,255,255,.55)}
+.stat .n{font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.stat .l{font-size:12px;color:var(--dim);margin-top:7px;display:flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
+.bar{height:6px;border-radius:99px;background:var(--card2);overflow:hidden;display:flex;margin:-4px 0 18px}
+.bar i{display:block;height:100%}
+.search{position:sticky;top:0;z-index:5;background:linear-gradient(#000 75%,rgba(0,0,0,0));padding:8px 0 12px;margin-bottom:2px}
+.search .field{padding:13px 16px;font-size:15px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:10px -16px 0;padding:0 16px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 12px;font-size:12.5px;color:var(--dim);cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--fg);color:#000;border-color:var(--fg)}
+.count{font-size:12px;color:var(--mute);margin:6px 2px 10px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 15px;cursor:pointer;transition:background .2s}
+.row:active{background:var(--card2)}
+.top{display:flex;align-items:center;gap:10px}
+.av{width:38px;height:38px;border-radius:12px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--dim);flex:none;direction:ltr}
+.who{flex:1;min-width:0}
+.who b{display:block;font-size:15px;font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr;text-align:right;unicode-bidi:plaintext}
+.who span{font-size:12px;color:var(--mute)}
+.pill{font-size:11.5px;padding:5px 9px;border-radius:999px;white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:5px}
+.p-ok{background:rgba(126,226,168,.12);color:var(--ok)}
+.p-wait{background:rgba(255,210,122,.12);color:var(--wait)}
+.p-bad{background:rgba(255,138,138,.12);color:var(--bad)}
+.p-info{background:rgba(143,184,255,.13);color:var(--accent)}
+.p-mute{background:rgba(255,255,255,.06);color:var(--dim)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.more{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--dim);line-height:1.55}
+.row.open .more{display:block}
+.more a{color:var(--accent);text-decoration:none;word-break:break-all}
+.kv{display:flex;gap:8px;margin-bottom:6px}
+.kv em{font-style:normal;color:var(--mute);min-width:72px;flex:none}
+.empty{text-align:center;color:var(--mute);padding:50px 0;font-size:14px}
+.foot{text-align:center;color:var(--mute);font-size:11.5px;margin-top:26px}
+@media (min-width:640px){.stats{grid-template-columns:repeat(6,1fr)}#app{padding-top:28px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<section id="lock">
+  <form class="lockbox" id="lockform" autocomplete="on">
+    <img src="../vinoa-v-96.png" alt="">
+    <h1>VINOA</h1>
+    <p>אזור ניהול פרטי</p>
+    <input type="text" name="username" value="vinoa-admin" autocomplete="username" hidden>
+    <input class="field" id="pw" type="password" placeholder="סיסמה" autocomplete="current-password" required>
+    <button class="btn" type="submit">כניסה</button>
+    <label class="remember"><input type="checkbox" id="rem" checked> לזכור במכשיר הזה</label>
+    <div class="err" id="err"></div>
+  </form>
+</section>
+
+<main id="app">
+  <header>
+    <div class="brand"><img src="../vinoa-v-96.png" alt=""><div><b>VINOA</b><br><span>מעקב שליחות</span></div></div>
+    <button class="ghost" id="logout">יציאה</button>
+  </header>
+  <div class="tracks" id="tracks"></div>
+  <div class="stats" id="stats"></div>
+  <div class="bar" id="bar"></div>
+  <div class="search">
+    <input class="field" id="q" type="search" placeholder="חיפוש לפי שם, מייל או הערה">
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="count" id="count"></div>
+  <div class="list" id="list"></div>
+  <div class="foot" id="foot"></div>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+let DATA=null,cur=null,fStatus='הכל',fReply=null,q='';
+async function decrypt(pw){
+  const r=await fetch('data.enc.json?'+Date.now(),{cache:'no-store'});const e=await r.json();
+  const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(e.salt),iterations:e.iter,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(e.iv)},key,b64(e.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+async function unlock(pw,save){
+  try{DATA=await decrypt(pw)}catch(x){$('#err').textContent='סיסמה שגויה';localStorage.removeItem('vinoa_pw');return}
+  if(save)localStorage.setItem('vinoa_pw',pw);
+  $('#lock').style.display='none';$('#app').style.display='block';
+  cur=Object.keys(DATA.tracks)[0];renderAll();
+}
+$('#lockform').onsubmit=e=>{e.preventDefault();$('#err').textContent='';unlock($('#pw').value,$('#rem').checked)};
+$('#logout').onclick=()=>{localStorage.removeItem('vinoa_pw');location.reload()};
+const saved=localStorage.getItem('vinoa_pw');if(saved)unlock(saved,true);
+
+const ST={'נשלח':['p-ok','var(--ok)'],'טרם נשלח':['p-wait','var(--wait)'],'לא נמסר (כתובת שגויה)':['p-bad','var(--bad)']};
+const RP={'אין תשובה':'p-mute','מענה אוטומטי':'p-mute','ביקשו לשלוח בערוץ אחר':'p-wait','התקבלה תשובה':'p-info','רוצים להחתים':'p-ok','דחו':'p-bad'};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rows=()=>DATA.tracks[cur].rows;
+const realReply=r=>['התקבלה תשובה','רוצים להחתים','דחו','ביקשו לשלוח בערוץ אחר'].includes(r.reply);
+function renderAll(){renderTracks();renderStats();renderChips();renderList()}
+function renderTracks(){
+  $('#tracks').innerHTML=Object.entries(DATA.tracks).map(([k,t])=>`<button class="track ${k===cur?'on':''}" data-k="${esc(k)}"><b>${esc(k)}</b><small>${t.rows.length} יעדים · ${esc(t.updated||'')}</small></button>`).join('');
+  document.querySelectorAll('.track').forEach(b=>b.onclick=()=>{cur=b.dataset.k;fStatus='הכל';fReply=null;renderAll()});
+}
+function renderStats(){
+  const R=rows(),c=s=>R.filter(r=>r.status===s).length;
+  const items=[
+    ['נשלח',c('נשלח'),'var(--ok)',{s:'נשלח'}],
+    ['טרם נשלח',c('טרם נשלח'),'var(--wait)',{s:'טרם נשלח'}],
+    ['לא נמסר',c('לא נמסר (כתובת שגויה)'),'var(--bad)',{s:'לא נמסר (כתובת שגויה)'}],
+    ['ענו',R.filter(realReply).length,'var(--accent)',{r:'real'}],
+    ['מענה אוטומטי',R.filter(r=>r.reply==='מענה אוטומטי').length,'rgba(255,255,255,.4)',{r:'מענה אוטומטי'}],
+    ['הורידו',R.filter(r=>r.downloaded).length,'var(--accent)',{r:'dl'}]];
+  $('#stats').innerHTML=items.map((it,i)=>{const on=(it[3].s&&fStatus===it[3].s)||(it[3].r&&fReply===it[3].r);return `<div class="stat ${on?'on':''}" data-i="${i}"><div class="n">${it[1]}</div><div class="l"><i class="dot" style="background:${it[2]}"></i>${it[0]}</div></div>`}).join('');
+  document.querySelectorAll('.stat').forEach(el=>el.onclick=()=>{const f=items[el.dataset.i][3];
+    if(f.s){fStatus=fStatus===f.s?'הכל':f.s;fReply=null}else{fReply=fReply===f.r?null:f.r;fStatus='הכל'}renderStats();renderChips();renderList()});
+  const t=R.length||1;$('#bar').innerHTML=[['נשלח','var(--ok)'],['טרם נשלח','var(--wait)'],['לא נמסר (כתובת שגויה)','var(--bad)']].map(([s,col])=>`<i style="width:${c(s)/t*100}%;background:${col}"></i>`).join('');
+}
+function renderChips(){
+  const opts=['הכל','נשלח','טרם נשלח','לא נמסר (כתובת שגויה)','לייבל','די ג׳יי','מייל','TrackStack','LabelRadar','טופס'];
+  $('#chips').innerHTML=opts.map(o=>`<button class="chip ${fStatus===o&&!fReply?'on':''}" data-o="${esc(o)}">${o==='לא נמסר (כתובת שגויה)'?'לא נמסר':esc(o)}</button>`).join('');
+  document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{fStatus=b.dataset.o;fReply=null;renderStats();renderChips();renderList()});
+}
+function match(r){
+  if(fReply==='real'&&!realReply(r))return false;
+  if(fReply==='dl'&&!r.downloaded)return false;
+  if(fReply&&!['real','dl'].includes(fReply)&&r.reply!==fReply)return false;
+  if(fStatus!=='הכל'&&![r.status,r.kind,r.channel].includes(fStatus))return false;
+  if(q){const h=(r.name+' '+r.route+' '+r.notes+' '+r.reply).toLowerCase();if(!h.includes(q))return false}
+  return true;
+}
+function link(route){
+  if(!route)return '';
+  if(route.includes('@')&&!route.startsWith('http'))return `<a class="mono" href="mailto:${esc(route)}">${esc(route)}</a>`;
+  return `<a class="mono" href="${esc(route)}" target="_blank" rel="noopener">${esc(route.replace(/^https?:\/\/(www\.)?/,''))}</a>`;
+}
+function renderList(){
+  const L=rows().filter(match);
+  $('#count').textContent=L.length+' מתוך '+rows().length;
+  $('#list').innerHTML=L.length?L.map((r,i)=>{const st=ST[r.status]||['p-mute'];const ini=(r.name||'?').replace(/[^A-Za-z0-9א-ת]/g,'').slice(0,2).toUpperCase();
+    return `<div class="row" data-i="${i}">
+      <div class="top"><div class="av">${esc(ini)}</div><div class="who"><b>${esc(r.name)}</b><span>${esc(r.kind)} · ${esc(r.channel)}</span></div>
+      <span class="pill ${st[0]}">${r.status==='לא נמסר (כתובת שגויה)'?'לא נמסר':esc(r.status)}</span></div>
+      ${(r.reply&&r.reply!=='אין תשובה')||r.downloaded?`<div class="meta">${r.reply&&r.reply!=='אין תשובה'?`<span class="pill ${RP[r.reply]||'p-mute'}">${esc(r.reply)}</span>`:''}${r.downloaded?'<span class="pill p-info">⬇ הוריד</span>':''}</div>`:''}
+      <div class="more">
+        <div class="kv"><em>יעד</em><span>${link(r.route)}</span></div>
+        ${r.date?`<div class="kv"><em>נשלח</em><span class="mono">${esc(r.date)}</span></div>`:''}
+        <div class="kv"><em>תשובה</em><span>${esc(r.reply||'—')}</span></div>
+        <div class="kv"><em>הורדה</em><span>${r.downloaded?'כן':'לא ידוע'}</span></div>
+        ${r.notes?`<div class="kv"><em>הערות</em><span>${esc(r.notes)}</span></div>`:''}
+      </div></div>`}).join(''):'<div class="empty">אין תוצאות</div>';
+  document.querySelectorAll('.row').forEach(el=>el.onclick=e=>{if(e.target.closest('a'))return;el.classList.toggle('open')});
+  $('#foot').textContent='עודכן '+(DATA.tracks[cur].updated||'');
+}
+$('#q').oninput=e=>{q=e.target.value.trim().toLowerCase();renderList()};
+</script>
+</body>
+</html>
